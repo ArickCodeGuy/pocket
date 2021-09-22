@@ -2,7 +2,10 @@
     <div id="Login">
         <div class="container">
             <h1 class="header">Login</h1>
-            <div class="form">
+            <form
+                class="form"
+                @submit.prevent="validate"
+            >
                 <input
                     type="text"
                     class="input"
@@ -13,16 +16,20 @@
                     @input="changeStatus(form.login)"
                 >
                 <input
-                    type="text"
+                    type="password"
                     class="input"
                     :class="{ 'invalid': !form.password.status }"
                     v-model="form.password.value"
                     placeholder="password"
                     @input="changeStatus(form.password)"
                 >
-                <div class="submit" @click="validate">Login</div>
+                <input
+                    class="submit"
+                    @click="validate"
+                    value="Login"
+                />
                 <div id="error-info" v-if="form.error.value">{{form.error.value}}</div>
-            </div>
+            </form>
         </div>
     </div>
 </template>
@@ -111,6 +118,7 @@ export default defineComponent ({
             }
         }
         .submit {
+            appearance: none;
             position: relative;
             top: 0;
             border-radius: 5px;
@@ -118,12 +126,17 @@ export default defineComponent ({
             font-weight: bold;
             text-align: center;
             background-color: var(--block-color);
+            color: var(--color-primary);
             font-size: 1.2rem;
             cursor: pointer;
             transition: .3s;
             box-shadow: 0 5px var(--block-shadow-light);
+            border: none;
             &:hover {
                 background-color: var(--block-color-hover);
+            }
+            &:focus {
+                outline: none;
             }
             &:active {
                 top: 5px;

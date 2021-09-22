@@ -111,7 +111,7 @@ export const store = createStore({
         },
         checkStatus({commit}) {
             return new Promise((resolve, reject) => {
-                fetch('/api/users/check_status/')
+                fetch('/api/users/get_status/')
                     .then(res => {
                         if (!res.ok) {throw res.text()}
                         return res.json()
