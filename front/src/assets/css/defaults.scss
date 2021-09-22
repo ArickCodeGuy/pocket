@@ -1,0 +1,172 @@
+* {
+    // light
+    --color-primary-light: #000;
+    --color-secondary-light: #282828;
+    --bgc-light: #fff;
+    --block-shadow-light: rgba(0, 0, 0, .3);
+    --header-color-light: rgba(0, 0, 0, .4);
+    --block-color-light: #e0e0e0;
+    --block-color-hover-light: #e5e5e5;
+    --block-color2-light: #f5f5f5;
+    --contrast-light: #000000;
+
+    // dark
+    --color-primary-dark: #fff;
+    --color-secondary-dark: #fafafa;
+    --bgc-dark: #282828;
+    --block-shadow-dark: rgba(255, 255, 255, .3);
+    --header-color-dark: rgba(255, 255, 255, .4);
+    --block-color-dark: #151515;
+    --block-color-hover-dark: #101010;
+    --block-color2-dark: #1f1f1f;
+    --contrast-dark: #ffffff;
+
+    transition: .3s background-color;
+}
+
+// margins, paddings
+:root {
+    --section-margin: 30px;
+    --section-padding: 30px;
+    --spacer-margin: 30px;
+
+    @media (min-width: 768px) {
+        --section-margin: 100px;
+        --section-padding: 100px;
+    }
+}
+
+body {
+    margin: 0;
+    color:  var(--color-secondary);
+    font-size: 12px;
+    line-height: 1.2em;
+    background-color: var(--bgc);
+    font-family: 'Montserrat';
+
+    // set default as light theme
+    --color-primary: var(--color-primary-light);
+    --color-secondary: var(--color-secondary-light);
+    --bgc: var(--bgc-light);
+    --header-color: var(--header-color-light);
+    --block-color: var(--block-color-light);
+    --block-color-hover: var(--block-color-hover-light);
+    --block-color2: var(--block-color2-light);
+    --contrast: var(--contrast-light);
+
+    &.theme-dark {
+        --color-primary: var(--color-primary-dark);
+        --color-secondary: var(--color-secondary-dark);
+        --bgc: var(--bgc-dark);
+        --header-color: var(--header-color-dark);
+        --block-color: var(--block-color-dark);
+        --block-color-hover: var(--block-color-hover-dark);
+        --block-color2: var(--block-color2-dark);
+        --contrast: var(--contrast-dark);
+    }
+    @media (min-width: 576px) {
+        font-size: 15px;
+    }
+    @media (min-width: 992px) {
+        font-size: 18px;
+    }
+    @media (min-width: 2000px) {
+        font-size: 20px;
+    }
+}
+
+.section {
+    margin: var(--section-margin) 0;
+}
+.banner {
+    padding: var(--section-padding) 0;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+.container {
+    // referes to column gap within container
+    --gap: 8px;
+    --ngap: calc(var(--gap) * -1);
+    --hgap: calc(var(--gap) / 2);
+    --hngap: calc(var(--ngap) / 2);
+    width: 100%;
+    max-width: 100%;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: var(--hgap);
+    padding-right: var(--hgap);
+    @media (min-width: 576px) { width: 540px; }
+    @media (min-width: 768px) {
+        --gap: 30px;
+        width: 740px;
+    }
+    @media (min-width: 992px) { width: 940px; }
+    @media (min-width: 1200px) { width: 1140px; }
+    @media (min-width: 1921px) { width: 1340px; }
+}
+
+.row {
+    display: flex;
+    float: wrap;
+    margin-top: var(--nhgap);
+    margin-left: var(--nhgap);
+    margin-right: var(--nhgap);
+}
+
+.col {
+    width: 100%;
+    padding-top: var(--hgap);
+    padding-left: var(--hgap);
+    padding-right: var(--hgap);
+    @media (max-width: 768px) {
+        width: 50%;
+    }
+}
+
+.heading, h1 {
+    font-size: 3em;
+    line-height: 1em;
+    margin: 0;
+    margin-bottom: 1em;
+    text-transform: uppercase;
+    color: var(--color-primary);
+}
+.heading2, h2 {
+    font-size: 2.4em;
+    line-height: 1em;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+    text-transform: capitalize;
+    color: var(--color-primary);
+    &:first-child {
+        margin-top: 0;
+    }
+}
+.heading3, h3 {
+    font-size: 1.5em;
+    line-height: 1em;
+    margin-top: 2em;
+    margin-bottom: 1em;
+    &:first-child {
+        margin-top: 0;
+    }
+}
+p {
+    margin: 1em 0;
+    &:first-child { margin-top: 0; }
+    &:last-child { margin-bottom: 0; }
+}
+ul {
+    margin: 1em 0;
+    &:first-child { margin-top: 0; }
+    &:last-child { margin-bottom: 0; }
+}
+.spacer {
+    margin-top: var(--spacer-margin);
+}
