@@ -33,7 +33,7 @@
                         :style="{ backgroundImage: 'url('+user.img+')' }"
                     />
                     <div class="char__right">
-                        <div class="char__name">{{user.login}}</div>
+                        <div class="char__name">{{user.name}}</div>
                         <div class="char__desc">{{user.lvl}} уровень</div>
                     </div>
                 </div>
@@ -89,7 +89,7 @@ export default {
         user: function() {
             return {
                 img: this.$store.state.user.profile_picture,
-                login: this.$store.state.user.login,
+                name: this.$store.state.user.name,
                 lvl: this.$store.state.user.lvl,
             }
         },

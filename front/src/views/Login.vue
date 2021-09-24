@@ -6,6 +6,10 @@
                 class="form"
                 @submit.prevent="validate"
             >
+                <div class="options">
+                    <label :class="{'active': form.option.value === 'Login'}">Login<input type="radio" value="Login" v-model="form.option.value" /></label>
+                    <label :class="{'active': form.option.value === 'Register'}">Register<input type="radio" value="Register" v-model="form.option.value" /></label>
+                </div>
                 <input
                     type="text"
                     class="input"
@@ -25,8 +29,8 @@
                 >
                 <input
                     class="submit"
-                    @click="validate"
-                    value="Login"
+                    type="submit"
+                    :value="form.option.value"
                 />
                 <div id="error-info" v-if="form.error.value">{{form.error.value}}</div>
             </form>
@@ -34,22 +38,25 @@
     </div>
 </template>
 
-<script>
+<script lang="ts">
 import { defineComponent } from 'vue';
 export default defineComponent ({
     data() {
         return {
             form: {
+                option: {
+                    value: 'Login',
+                },
                 login: {
-                    value: null,
+                    value: '',
                     status: true,
                 },
                 password: {
-                    value: null,
+                    value: '',
                     status: true,
                 },
                 error: {
-                    value: null
+                    value: ''
                 }
             }
         }
@@ -69,7 +76,14 @@ export default defineComponent ({
 
             if (!this.form.login.status || !this.form.password.status) {return}
 
-            this.doLogin()
+            if (this.form.option.value === 'Login') {
+                this.doLogin()
+            }else if (this.form.option.value === 'Register') {
+                this.doRegister()
+            }
+        },
+        hashPas(string: string) {
+            return string
         },
         doLogin() {
             this.$store.dispatch('doLogin', {
@@ -79,8 +93,20 @@ export default defineComponent ({
                 .then(() => {
                     this.$router.push('/game/')
                 })
-                .catch((err) => {
+                .catch(err => {
                     this.form.error.value = err
+                })
+        },
+        doRegister() {
+            fetch(`/api/users/?login=${this.form.login.value}&password=${this.form.password.value}`, {
+                method: 'POST'
+            })
+                .then(res => {
+                    if (!res.ok) {throw res.text()}
+                    this.doLogin();
+                })
+                .catch(async err => {
+                    this.form.error.value = await err
                 })
         }
     }
@@ -103,6 +129,21 @@ export default defineComponent ({
             margin-right: auto;
             display: grid;
             grid-gap: 30px;
+        }
+        .options {
+            display: flex;
+            > * {
+                cursor: pointer;
+                width: 100%;
+                padding: 10px;
+                text-align: center;
+                &.active, &:hover {
+                    background-color: var(--block-color);
+                }
+            }
+            input {
+                display: none;
+            }
         }
         .input {
             padding: 15px 10px;

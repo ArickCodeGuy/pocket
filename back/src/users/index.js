@@ -1,5 +1,6 @@
 const mysql = require('mysql')
 const config = require('./../config.js')
+const hash = require('./../hash.js')
 
 module.exports = {
     async getUserData(req, res) {
@@ -22,15 +23,23 @@ module.exports = {
             return res.send(err.text)
         }
     },
-    register: (req, res) => {
-        if (!req.query.login || !req.query.password) {return res.send('Provide login and password')}
+    async register(req, res) {
+        if (!req.query.login || !req.query.password) {return res.status(400).send('Provide login and password')}
 
+        const hashPas = hash(`${req.query.login}${req.query.password}`)
         const connection = mysql.createConnection(config)
         connection.connect(config)
-        connection.query("INSERT INTO pocket.users (`login`, `password`) VALUES ('" + req.query.login + "', '"+ req.query.password +"');", (error,results,fields) => {
+        connection.query("INSERT INTO pocket.users_essentials (`login`, `password`) VALUES ('" + req.query.login + "', '"+ hashPas +"');", async (error,results,fields) => {
             connection.end()
-            if (error) {return res.send('login already exists')}
-            res.send('register success!')
+            if (error) {return res.status(400).send('login already exists')}
+            try {
+                await insertCharacter(results.insertId, req.query.login)
+                res.send('Register success')
+            }
+            catch(err) {
+                res.status(err.status)
+                res.send(err.text)
+            }
         })
     },
     delUser: (req, res) => {
@@ -38,7 +47,7 @@ module.exports = {
     },
     async login(req, res) {
         try {
-            const { id: user_id } = await auth(req, res)
+            const { id: user_id } = await queryUserEssentials(req.query.login, req.query.password)
             const { session_id } = await createSession(user_id)
             res.send({session_id: session_id})
         }
@@ -75,124 +84,130 @@ module.exports = {
     },
 }
 
-// @TODO do a normal id generation
-function generate_id() {
-    return (Math.random() + 1).toString(36).substring(2)
-}
-
 function queryUserStatus(session_id) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         if (!session_id) {return reject({status: 400, loged: false, text: 'No session_id provided'})}
 
-        const connection = mysql.createConnection(config)
-        connection.connect(config)
-        connection.query(`SELECT user_id, time_expires FROM pocket.sessions WHERE session_id = '${session_id}' LIMIT 1;`, (error,results,fields) => {
-            connection.end();
-            if (error) {return reject({status: 500, loged: false, text: 'mysql query error'})}
-
-            if (!results.length) {return reject({status: 404, loged: false, text: 'No user found given session_id'})}
-            if (Date.now() > results[0].time_expires) {return reject({status: 401, loged: false, text: 'session_id is exprired'})}
-
+        try {
+            const result = await queryDataBase(`SELECT user_id, time_expires FROM pocket.sessions WHERE session_id = '${session_id}' LIMIT 1;`)
+            if (!result.length) {return reject({status: 404, loged: false, text: 'No user found given session_id'})}
+            if (Date.now() > result[0].time_expires) {return reject({status: 401, loged: false, text: 'session_id is exprired'})}
             resolve({
                 loged: true,
-                id: results[0].user_id
+                id: result[0].user_id
             })
-        })
+        }
+        catch(err) {
+            reject({status: 500, loged: false, text: 'mysql query error'})
+        }
     })
 }
 
 function queryUserInfo(req, res) {
     return new Promise(async (resolve, reject) => {
-        if (!req.query.login && !req.query.id && !req.cookies.session_id) {return reject({status: 400, text: 'specify name or id or your session_id to look for'})}        
-
-        let columns = `
-            login,
-            profile_picture,
-            lvl,
-            experience,
-            class_id,
-            location_id,
-            base_strength,
-            base_stamina,
-            base_agility,
-            inventory_head,
-            inventory_boots,
-            inventory_left_hand,
-            inventory_right_hand,
-            inventory_neck`
+        if (!req.query.name && !req.query.id && !req.cookies.session_id) {return reject({status: 400, text: 'specify name or id or your session_id to look for'})}
 
         let queryStr
-        if (req.query.login) {
-            queryStr = `SELECT ${columns} FROM pocket.users WHERE login = '${req.query.login}' LIMIT 1;`
+        if (req.query.name) {
+            queryStr = `SELECT * FROM pocket.users WHERE name = '${req.query.name}' LIMIT 1;`
         }else if (req.query.id) {
-            queryStr = `SELECT ${columns} FROM pocket.users WHERE id = '${req.query.id}' LIMIT 1;`
+            queryStr = `SELECT * FROM pocket.users WHERE character_id = '${req.query.id}' LIMIT 1;`
         }else if (req.cookies.session_id) {
             try {
-                let { id } = await queryUserStatus(req.cookies.session_id)
-                queryStr = `SELECT ${columns} FROM pocket.users WHERE id = '${id}' LIMIT 1;`
+                const { id: user_id } = await queryUserStatus(req.cookies.session_id)
+                const result = await queryDataBase("SELECT active_character_id FROM pocket.users_essentials WHERE id = "+user_id+";")
+                queryStr = `SELECT * FROM pocket.users WHERE character_id = '${result[0].active_character_id}' LIMIT 1;`
             }
             catch(err) {
                 return reject(err)
             }
         }
 
-        const connection = mysql.createConnection(config)
-        connection.connect(config)
-        connection.query(queryStr, (error,results,fields) => {
-            connection.end();
-            if (error) {return reject({status: 500, text: 'mysql query error'})}
-            if (!results.length) {return reject({status: 404, text: 'Could not find any user_id given session_id'})}
-            resolve(results[0])
-        })
+        try {
+            const result = await queryDataBase(queryStr)
+            if (!result.length) {return reject({status: 404, text: 'Could not find any character_id given session_id'})}
+            resolve(result[0])
+        }
+        catch(err) {
+            reject({status: 500, text: 'mysql query error!'})
+        }
     })
 }
 
-function auth(req, res) {
-    return new Promise((resolve, reject) => {
-        if (!req.query.login || !req.query.password) {return reject({status: 400, text: 'Specify name and password for login first'})}
+function queryUserEssentials(login, password) {
+    return new Promise(async (resolve, reject) => {
+        if (!login || !password) {return reject({status: 400, text: 'Specify name and password for login first'})}
 
-        const connection = mysql.createConnection(config)
-        connection.connect(config)
-        connection.query(`SELECT login, id FROM pocket.users WHERE login = '${req.query.login}' AND password = '${req.query.password}' LIMIT 1;`, (error,results,fields) => {
-            connection.end()
-            if (error) {return reject({status: 500, text: 'mysql error'})}
-            if (!results[0]) {return reject({status: 403, text: 'Login or password is incorrect'})}
-            resolve({
-                login: results[0].login,
-                id: results[0].id
-            })
-        })
+        const hashPas = hash(`${login}${password}`)
+
+        try {
+            const result = await queryDataBase(`SELECT id, login, access_level, email, active_character_id FROM pocket.users_essentials WHERE login = '${login}' AND password = '${hashPas}' LIMIT 1;`)
+            if (!result.length) {return reject({status: 403, text: 'Login or password is incorrect'})}
+            resolve(results[0])
+        }
+        catch(err) {
+            reject({status: 500, text: 'mysql error'})
+        }
     })
 }
 
 function createSession(user_id) {
-    return new Promise((resolve, reject) => {
-        const session_id = generate_id()
+    return new Promise(async (resolve, reject) => {
+        const session_id = hash()
         const time = Date.now()
         // 604800000 -> 7 days
         const time_expires = time + 604800000
-        const connection = mysql.createConnection(config)
-        connection.connect(config)
-        connection.query("INSERT INTO `pocket`.`sessions` (`user_id`, `session_id`, `time_created`, `time_expires`) VALUES ('"+user_id+"', '"+session_id+"', '"+time+"', '"+time_expires+"');", (error,results,fields) => {
-            connection.end()
-            if (error) {return reject({status: 500, text: 'Mysql error. Probably invalid user_id'})}
+        try {
+            const result = await queryDataBase("INSERT INTO `pocket`.`sessions` (`user_id`, `session_id`, `time_created`, `time_expires`) VALUES ('"+user_id+"', '"+session_id+"', '"+time+"', '"+time_expires+"');")
             resolve({
                 session_id: session_id,
             })
-        })
+        }
+        catch(err) {
+            reject({status: 500, text: 'User already exists'})
+        }
     })
 }
 
 function queryRoute(location_from, location_to) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const result = await queryDataBase(`SELECT route_time, id_to, route_name FROM pocket.location_routes WHERE id_from = ${location_from} AND id_to = ${location_to} LIMIT 1;`)
+            if (!result.length) {return reject({status: 404, text: 'Can not find route!'})}
+            resolve(result[0])
+        }
+        catch(err) {
+            reject({status: 500, text: 'this route does not exist'})
+        }
+    })
+}
+
+function insertUser(login, password) {
+    // @@TODO
+}
+
+function insertCharacter(user_id, name) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const insertResult = await queryDataBase("INSERT INTO `pocket`.`users` (`user_id`, `name`) VALUES ('"+user_id+"', '"+name+"');")
+            await queryDataBase("UPDATE `pocket`.`users_essentials` SET `active_character_id` = '"+insertResult[0].insertId+"' WHERE (`id` = '"+user_id+"');")
+            resolve('Success')
+        }
+        catch(err) {
+            reject({status: 400, text:'Character name already exists'})
+        }
+    })
+}
+
+function queryDataBase(string) {
     return new Promise((resolve, reject) => {
         const connection = mysql.createConnection(config)
         connection.connect(config)
-        connection.query(`SELECT route_time, id_to, route_name FROM pocket.location_routes WHERE id_from = ${location_from} AND id_to = ${location_to} LIMIT 1;`, (error,results,fields) => {
+        connection.query(string, (error,results,fields) => {
             connection.end()
-            if (error) {return reject({status: 500, text: 'this route does not exist'})} // this route does not exist
-            if (!results.length) {return reject({status: 404, text: 'Can not find route!'})}
-
-            resolve(results[0])
+            console.log(`Time: ${new Date().toString()}\n`, `Query: ${string}\n`, `Errors: ${error}\n`, `Results: ${JSON.stringify(results)}\n`)
+            if (error) {return reject(error)}
+            resolve(results)
         })
     })
 }

@@ -13,7 +13,7 @@ export type State = {
     },
     user: {
         [index: string]: number | string | undefined,
-        login: string,
+        name: string,
         profile_picture: string,
         lvl: number,
         experience: number,
@@ -41,7 +41,7 @@ const state: State = {
         }],
     },
     user: {
-        login: '',
+        name: '',
         profile_picture: '',
         lvl: NaN,
         class_id: NaN,
