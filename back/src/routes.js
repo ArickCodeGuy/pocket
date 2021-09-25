@@ -78,11 +78,4 @@ router.get('/users/get_status/', getStatus)
 // /location/?location_id=1
 router.get('/location/', getLocation)
 
-// returns given location_id
-// {
-//     route_name,
-//     route_time
-// }
-router.get('/location/neighbours/', getNeighbours)
-
 module.exports = router

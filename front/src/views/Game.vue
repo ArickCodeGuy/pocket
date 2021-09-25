@@ -1,15 +1,19 @@
 <template>
     <div id="game">
         <Header />
-        <GameBody />
+        <div class="container">
+            <LocationInfo />
+            <LocationsList />
+        </div>
     </div>
 </template>
 
 <script>
-import Header from './../components/GameHeader/index'
-import GameBody from './../components/GameBody/index'
+import Header from './../components/Game/Header'
+import LocationInfo from './../components/Game/LocationInfo'
+import LocationsList from './../components/Game/LocationsList'
 export default {
-    components: {Header, GameBody},
+    components: {Header, LocationInfo, LocationsList},
     data() {
         return {
             
@@ -23,3 +27,12 @@ export default {
     }
 }
 </script>
+
+<style lang="scss" scoped>
+#game {
+    .container {
+        display: grid;
+        grid-gap: var(--gap);
+    }
+}
+</style>
