@@ -64,6 +64,11 @@
                 </div>
             </div>
         </div>
+        <div
+            class="menu-bg"
+            :class="{ 'toggled': menu.toggled }"
+            @mousedown="toggleNav"
+        />
     </div>
 </template>
 <script lang="">
@@ -123,6 +128,7 @@ export default {
             width: 30px;
             height: 20px;
             position: relative;
+            cursor: pointer;
             transition: .3s;
             span {
                 position: absolute;
@@ -182,10 +188,13 @@ export default {
         }
         .menu {
             --p: 15px;
-            position: absolute;
+            z-index: 100;
+            position: fixed;
             overflow-y: auto;
+            background-color: var(--block-color2);
             top: 0;
-            width: 100%;
+            width: 300px;
+            max-width: calc(100% - 30px);
             height: 100vh;
             left: -100%;
             transition: .3s;
@@ -245,6 +254,23 @@ export default {
                 left: 0;
                 width: 300px;
                 padding: 40px 0;
+            }
+        }
+        .menu-bg {
+            position: fixed;
+            z-index: 95;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: var(--block-shadow);
+            transition: .3s;
+            opacity: 0;
+            cursor: pointer;
+            pointer-events: none;
+            &.toggled {
+                pointer-events: auto;
+                opacity: 1;
             }
         }
     }

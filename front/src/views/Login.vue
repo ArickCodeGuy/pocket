@@ -63,11 +63,13 @@ export default defineComponent ({
     },
     beforeMount() {
         this.$store.dispatch('checkStatus')
-            .then(() => this.$store.state.loged ? this.$router.push('/game/'): false)
-            .catch(err => console.log(err))
+            .then((res: any) => {
+                res.loged ? this.$router.push('/game/'): false
+            })
+            .catch((err: string) => console.log(err))
     },
     methods: {
-        changeStatus(ref) {
+        changeStatus(ref: any) {
             ref.status = true
         },
         validate() {
@@ -93,7 +95,7 @@ export default defineComponent ({
                 .then(() => {
                     this.$router.push('/game/')
                 })
-                .catch(err => {
+                .catch((err: string) => {
                     this.form.error.value = err
                 })
         },
@@ -105,7 +107,7 @@ export default defineComponent ({
                     if (!res.ok) {throw res.text()}
                     this.doLogin();
                 })
-                .catch(async err => {
+                .catch(async (err: string) => {
                     this.form.error.value = await err
                 })
         }

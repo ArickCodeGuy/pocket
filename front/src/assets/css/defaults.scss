@@ -14,8 +14,8 @@
     --color-primary-dark: #fff;
     --color-secondary-dark: #fafafa;
     --bgc-dark: #282828;
-    --block-shadow-dark: rgba(255, 255, 255, .3);
-    --header-color-dark: rgba(255, 255, 255, .4);
+    --block-shadow-dark: rgba(0, 0, 0, .7);
+    --header-color-dark: rgba(0, 0, 0, .8);
     --block-color-dark: #151515;
     --block-color-hover-dark: #101010;
     --block-color2-dark: #1f1f1f;
@@ -49,6 +49,7 @@ body {
     --color-secondary: var(--color-secondary-light);
     --bgc: var(--bgc-light);
     --header-color: var(--header-color-light);
+    --block-shadow: var(--block-shadow-light);
     --block-color: var(--block-color-light);
     --block-color-hover: var(--block-color-hover-light);
     --block-color2: var(--block-color2-light);
@@ -59,6 +60,7 @@ body {
         --color-secondary: var(--color-secondary-dark);
         --bgc: var(--bgc-dark);
         --header-color: var(--header-color-dark);
+        --block-shadow: var(--block-shadow-dark);
         --block-color: var(--block-color-dark);
         --block-color-hover: var(--block-color-hover-dark);
         --block-color2: var(--block-color2-dark);

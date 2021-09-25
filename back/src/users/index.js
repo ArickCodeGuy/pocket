@@ -143,7 +143,7 @@ function queryUserEssentials(login, password) {
         try {
             const result = await queryDataBase(`SELECT id, login, access_level, email, active_character_id FROM pocket.users_essentials WHERE login = '${login}' AND password = '${hashPas}' LIMIT 1;`)
             if (!result.length) {return reject({status: 403, text: 'Login or password is incorrect'})}
-            resolve(results[0])
+            resolve(result[0])
         }
         catch(err) {
             reject({status: 500, text: 'mysql error'})
