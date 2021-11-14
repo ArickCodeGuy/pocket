@@ -1,46 +1,60 @@
 <template>
     <div id="Login">
-        <div class="container">
-            <h1 class="header">Login</h1>
-            <form
-                class="form"
-                @submit.prevent="validate"
-            >
-                <div class="options">
-                    <label :class="{'active': form.option.value === 'Login'}">Login<input type="radio" value="Login" v-model="form.option.value" /></label>
-                    <label :class="{'active': form.option.value === 'Register'}">Register<input type="radio" value="Register" v-model="form.option.value" /></label>
-                </div>
-                <input
-                    type="text"
-                    class="input"
-                    :class="{ 'invalid': !form.login.status }"
-                    v-model="form.login.value"
-                    placeholder="Login"
-                    autofocus
-                    @input="changeStatus(form.login)"
+        <Header/>
+        <div class="content">
+            <div class="container">
+                <h1 class="header">{{ form.option.value }}</h1>
+                <form
+                    class="form"
+                    @submit.prevent="validate"
                 >
-                <input
-                    type="password"
-                    class="input"
-                    :class="{ 'invalid': !form.password.status }"
-                    v-model="form.password.value"
-                    placeholder="password"
-                    @input="changeStatus(form.password)"
-                >
-                <input
-                    class="submit"
-                    type="submit"
-                    :value="form.option.value"
-                />
-                <div id="error-info" v-if="form.error.value">{{form.error.value}}</div>
-            </form>
+                    <div class="options">
+                        <label :class="{'active': form.option.value === 'Login'}">Login<input type="radio" value="Login" v-model="form.option.value" /></label>
+                        <label :class="{'active': form.option.value === 'Register'}">Register<input type="radio" value="Register" v-model="form.option.value" /></label>
+                    </div>
+                    <input
+                        type="text"
+                        class="input"
+                        :class="{ 'invalid': !form.login.status }"
+                        v-model="form.login.value"
+                        placeholder="Login"
+                        autofocus
+                        @input="changeStatus(form.login)"
+                    >
+                    <input
+                        type="password"
+                        class="input"
+                        :class="{ 'invalid': !form.password.status }"
+                        v-model="form.password.value"
+                        placeholder="password"
+                        @input="changeStatus(form.password)"
+                    >
+                    <input
+                        type="email"
+                        v-if="form.option.value === 'Register'"
+                        class="input"
+                        :class="{ 'invalid': !form.email.status }"
+                        v-model="form.email.value"
+                        placeholder="Email"
+                        @input="changeStatus(form.email)"
+                    >
+                    <input
+                        class="submit"
+                        type="submit"
+                        :value="form.option.value"
+                    />
+                    <div id="error-info" v-if="form.error.value">{{form.error.value}}</div>
+                </form>
+            </div>
         </div>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-export default defineComponent ({
+import Header from './../components/Header/index.vue'
+export default defineComponent({
+    components: {Header},
     data() {
         return {
             form: {
@@ -52,6 +66,10 @@ export default defineComponent ({
                     status: true,
                 },
                 password: {
+                    value: '',
+                    status: true,
+                },
+                email: {
                     value: '',
                     status: true,
                 },
@@ -75,8 +93,9 @@ export default defineComponent ({
         validate() {
             if (!this.form.login.value) {this.form.login.status = false}
             if (!this.form.password.value) {this.form.password.status = false}
+            if (this.form.option.value === 'Register' && !this.form.email.value) {this.form.email.status = false}
 
-            if (!this.form.login.status || !this.form.password.status) {return}
+            if (!this.form.login.status || !this.form.password.status || !this.form.email.status) {return}
 
             if (this.form.option.value === 'Login') {
                 this.doLogin()
@@ -117,12 +136,9 @@ export default defineComponent ({
 
 <style lang="scss" scoped>
     #Login {
-        width: 100vw;
-        height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-direction: column;
+        .content {
+            padding: 40px 0;
+        }
         .container {
             width: 500px;
         }
@@ -190,6 +206,18 @@ export default defineComponent ({
             border: 1px solid red;
             padding: 15px 10px;
             border-radius: 3px;
+        }
+        @media (min-width: 768px) {
+            .content {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
         }
     }
 </style>

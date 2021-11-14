@@ -1,6 +1,7 @@
 <template>
     <div id="game-location-info">
         <div class="name">{{location.name}}</div>
+        <hr class="spacer">
         <div class="description">{{location.description}}</div>
     </div>
 </template>
@@ -10,6 +11,9 @@ export default {
     computed: {
         location() {return this.$store.getters.getLocationInfo},
     },
+    beforeMount() {
+        this.$store.dispatch('getLocationData')
+    }
 }
 </script>
 
@@ -17,7 +21,6 @@ export default {
 #game-location-info {
     .name {
         font-weight: bold;
-        margin-bottom: 1rem;
     }
     .description {
         padding: 10px;

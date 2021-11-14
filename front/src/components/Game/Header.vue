@@ -1,109 +1,83 @@
 <template>
-    <div id="game-header">
+    <div id="Game-header">
         <div class="container">
             <div class="top">
                 <div
                     class="burger"
-                    :class="{'toggled': menu.toggled}"
+                    :class="{'toggled': menuToggled}"
                     @click="toggleNav"
                 >
                     <span></span>
                     <span></span>
                     <span></span>
                 </div>
-                <div class="header"><router-link to="/">Pocket</router-link></div>
+                <div class="header"><router-link to="/game/">{{title}}</router-link></div>
             </div>
+            <hr class="spacer">
+            <nav
+                class="nav"
+                v-if="showNav"
+            >
+                <div class="nav__list">
+                    <router-link v-for="(item,i) in items" :key="i" class="nav__link" :to="item.link">
+                        <div class="first">{{item.first}}</div>
+                        <div class="second">{{item.second}}</div>
+                    </router-link>
+                </div>
+            </nav>
+            <hr class="spacer" v-if="showNav">
         </div>
-        <nav class="nav">
-            <ul>
-                <li v-for="(item,i) in items" :key="i">
-                    <span class="first">{{item.first}}</span>
-                    <span class="second">{{item.second}}</span>
-                </li>
-            </ul>
-        </nav>
-        <div
-            class="menu"
-            :class="{ 'toggled': menu.toggled }"
-        >
-            <div class="menu__top">
-                <div class="char">
-                    <div
-                        class="char__img"
-                        :style="{ backgroundImage: 'url('+user.img+')' }"
-                    />
-                    <div class="char__right">
-                        <div class="char__name">{{user.name}}</div>
-                        <div class="char__desc">{{user.lvl}} уровень</div>
-                    </div>
-                </div>
-            </div>
-            <div class="menu__body">
-                <div class="menu__group">
-                    <router-link :to="'/game/user/info/'" class="menu__item">Персонаж</router-link>
-                    <router-link :to="'/game/user/skills/'" class="menu__item">Умения</router-link>
-                    <router-link :to="'/game/user/backpack/'" class="menu__item">Сумка</router-link>
-                </div>
-                <div class="menu__group">
-                    <router-link :to="'/game/'" class="menu__item">Локация</router-link>
-                    <router-link :to="'/game/quests/'" class="menu__item">Задания</router-link>
-                    <router-link :to="'/game/friends/'" class="menu__item">Друзья</router-link>
-                </div>
-                <div class="menu__group">
-                    <div class="menu__group-title">Правила и безопасность</div>
-                    <router-link :to="'/game/agreement/'" class="menu__item">Соглашение</router-link>
-                    <router-link :to="'/game/confidentiality/'" class="menu__item">Конфиденциальность</router-link>
-                </div>
-                <div class="menu__group">
-                    <div class="menu__group-title">Общение</div>
-                    <router-link :to="'#'" class="menu__item">ВК</router-link>
-                </div>
-                <div class="menu__group">
-                    <div class="menu__group-title">Прочее</div>
-                    <router-link :to="'/game/change/'" class="menu__item">Сменить персонажа</router-link>
-                </div>
-            </div>
-        </div>
-        <div
-            class="menu-bg"
-            :class="{ 'toggled': menu.toggled }"
-            @mousedown="toggleNav"
+        <Menu
+            :toggled="menuToggled"
+            @toggleNav="toggleNav"
         />
     </div>
 </template>
 <script lang="">
+import Menu from './Menu.vue'
 export default {
-    data () {
-        return {
-            items: [
-                {first: this.$store.state.user.calculated_health, second: this.$store.state.user.current_health},
-                {first: this.$store.state.user.calculated_mana, second: this.$store.state.user.current_mana},
-                {first: this.$store.state.user.calculated_weight, second: this.$store.state.user.current_weight},
-            ],
-            menu: {
-                toggled: false,
-            }
+    props: {
+        showNav: {
+            type: Boolean,
+            default: true,
+        },
+        title: {
+            type: String,
+            default: 'Pocket'
         }
+    },
+    components: {Menu},
+    data() {
+        return {
+            menuToggled: false,
+            items: [
+                {first: this.$store.state.user.calculated_health + '', second: this.$store.state.user.current_health + '', link: '/game/user/info/'},
+                {first: this.$store.state.user.calculated_mana + '', second: this.$store.state.user.current_mana + '', link: '/game/user/skills/'},
+                {first: this.$store.state.user.calculated_weight + '', second: this.$store.state.user.current_weight + '', link: '/game/user/backpack/'},
+            ],
+        }
+    },
+    beforeMount() {
+        this.$store.dispatch('getProfile')
+    },
+    computed: {
+        current_health() { return this.$store.state.user.current_health + '' },
+        current_mana() { return this.$store.state.user.current_mana + '' },
+        current_weight() { return this.$store.state.user.current_weight + '' },
+        calculated_health() { return this.$store.state.user.calculated_health + '' },
+        calculated_mana() { return this.$store.state.user.calculated_mana + '' },
+        calculated_weight() { return this.$store.state.user.calculated_weight + '' },
     },
     methods: {
         toggleNav() {
-            this.menu.toggled = !this.menu.toggled
+            this.menuToggled = !this.menuToggled
         }
-    },
-    computed: {
-        user: function() {
-            return {
-                img: this.$store.state.user.profile_picture,
-                name: this.$store.state.user.name,
-                lvl: this.$store.state.user.lvl,
-            }
-        },
     }
 }
 </script>
 
 <style lang="scss" scoped>
-    #game-header {
+    #Game-header {
         .top {
             padding: 10px 0;
             display: flex;
@@ -165,112 +139,49 @@ export default {
                     transform: translateY(-50%) rotate(-45deg);
                 }
             }
-            @media (min-width: 768px) {
+            @media (min-width: 1800px) {
                 display: none;
             }
         }
         .nav {
-            display: flex;
-            ul {
+            font-size: .6rem;
+            &__list {
+                display: flex;
+                gap: 15px;
+                justify-content: space-between;
                 list-style: none;
                 margin: 0;
                 padding: 0;
             }
-            li {
+            &__link {
+                width: 100%;
                 margin: 0;
+                border-radius: 20px;
                 padding: 5px 10px;
                 padding-left: 40px;
                 background-size: 50px;
                 background-repeat: no-repeat;
                 background-position: left 10px center;
-                box-shadow: var(--block-shadow);
-            }
-        }
-        .menu {
-            --p: 15px;
-            z-index: 100;
-            position: fixed;
-            overflow-y: auto;
-            background-color: var(--block-color2);
-            top: 0;
-            width: 300px;
-            max-width: calc(100% - 30px);
-            height: 100vh;
-            left: -100%;
-            transition: .3s;
-            &.toggled {
-                left: 0;
-            }
-            &__top {
-            }
-            .char {
-                padding: 10px var(--p);
-                display: flex;
-                align-items: center;
-                &__img {
-                    width: 50px;
-                    height: 50px;
-                    border-radius: 50%;
-                    background-color: var(--contrast);
-                    border: 1px solid var(--block-shadow);
-                    margin-right: 20px;
-                }
-                &__right {
-
-                }
-                &__name {
-                    color: var(--color-primary);
-                    // line-height: .9em;
-                }
-                &__desc {
-                    font-size: .7rem;
-                    line-height: normal;
-                }
-            }
-            &__body {
-            }
-            &__group {
-                padding-top: 0;
-                padding-bottom: 10px;
-                margin-bottom: 10px;
-                border-bottom: 1px solid var(--contrast);
-                &:last-child {border-bottom: 0;}
-            }
-            &__item {
                 text-decoration: none;
                 color: var(--color-primary);
-                display: block;
-                padding: 5px var(--p);
-                transition: .3s;
-                &:hover {
-                    background-color: var(--block-color-hover);
+                box-shadow: 0px 0px 10px var(--block-shadow);
+                line-height: normal;
+                .first {
+
+                }
+                .second {
+                    font-size: .7em;
                 }
             }
-            &__group-title {
-                padding: 5px var(--p);
-                margin-bottom: 0.5em;
-            }
             @media (min-width: 768px) {
-                left: 0;
-                width: 300px;
-                padding: 40px 0;
-            }
-        }
-        .menu-bg {
-            position: fixed;
-            z-index: 95;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100vh;
-            background-color: var(--block-shadow);
-            transition: .3s;
-            opacity: 0;
-            cursor: pointer;
-            pointer-events: none;
-            &.toggled {
-                pointer-events: auto;
-                opacity: 1;
+                font-size: 1rem;
+                &__list {
+                    gap: 30px;
+                }
+                &__link {
+                    border-radius: 30px;
+                    padding-left: 55px;
+                }
             }
         }
     }

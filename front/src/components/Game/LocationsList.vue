@@ -8,7 +8,7 @@
                 @click="changeLocation(location.id)"
             >
                 <div class="item__name">{{location.name}}</div>
-                <div class="item__time">{{location.time}}</div>
+                <div class="item__time">{{location.time}} sec</div>
             </div>
         </div>
     </div>
@@ -21,7 +21,11 @@ export default {
     },
     methods: {
         changeLocation(to) {
-            to
+            this.$store.dispatch('useRoute', to)
+                .then(res => {
+                    if (!res.ok) {throw res}
+                    this.$store.dispatch('getLocationData')
+                })
         }
     }
 }

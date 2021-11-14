@@ -18,7 +18,15 @@
 <script lang="ts">
 import { defineComponent } from 'vue';
 export default defineComponent ({
-    props: ['links'],
+    data() {
+        return {
+            links: [
+                {link: '/', label: 'Home'},
+                {link: '/forum', label: 'Forum'},
+                {link: '/login', label: 'Login'},
+            ],
+        }
+    },
     computed: {
     },
     methods: {
@@ -28,10 +36,12 @@ export default defineComponent ({
 
 <style lang="scss" scoped>
     #Header {
+        z-index: 100;
+        position: relative;
         background-color: var(--block-color);
         .links {
             display: flex;
-            gap: 10px;
+            // gap: 10px;
             list-style: none;
             margin: 0;
             padding: 0;
@@ -43,7 +53,7 @@ export default defineComponent ({
                 text-decoration: none;
                 font-size: 1.2rem;
                 display: inline-block;
-                padding: 15px;
+                padding: 15px 20px;
                 color: var(--color-primary);
                 &:hover {
                     background-color: var(--bgc);

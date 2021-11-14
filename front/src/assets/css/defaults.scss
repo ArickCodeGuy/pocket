@@ -28,11 +28,14 @@
 :root {
     --section-margin: 30px;
     --section-padding: 30px;
-    --spacer-margin: 30px;
+    --spacer-margin-sm: 10px;
+    --spacer-margin-lg: 30px;
+    --spacer-margin: var(--spacer-margin-sm);
 
     @media (min-width: 768px) {
         --section-margin: 100px;
         --section-padding: 100px;
+        --spacer-margin: var(--spacer-margin-lg);
     }
 }
 
@@ -97,38 +100,13 @@ body {
     --ngap: calc(var(--gap) * -1);
     --hgap: calc(var(--gap) / 2);
     --hngap: calc(var(--ngap) / 2);
-    width: 100%;
-    max-width: 100%;
-    margin-left: auto;
-    margin-right: auto;
     padding-left: var(--hgap);
     padding-right: var(--hgap);
-    @media (min-width: 576px) { width: 540px; }
     @media (min-width: 768px) {
         --gap: 30px;
         width: 740px;
     }
-    @media (min-width: 992px) { width: 940px; }
-    @media (min-width: 1200px) { width: 1140px; }
     @media (min-width: 1921px) { width: 1340px; }
-}
-
-.row {
-    display: flex;
-    float: wrap;
-    margin-top: var(--nhgap);
-    margin-left: var(--nhgap);
-    margin-right: var(--nhgap);
-}
-
-.col {
-    width: 100%;
-    padding-top: var(--hgap);
-    padding-left: var(--hgap);
-    padding-right: var(--hgap);
-    @media (max-width: 768px) {
-        width: 50%;
-    }
 }
 
 .heading, h1 {
@@ -170,5 +148,7 @@ ul {
     &:last-child { margin-bottom: 0; }
 }
 .spacer {
-    margin-top: var(--spacer-margin);
+    border: none;
+    margin: 0;
+    height: var(--spacer-margin);
 }

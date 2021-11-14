@@ -4,6 +4,9 @@
             :logo="logoLink"
             :links="links"
         />
+        <div class="container">
+            home
+        </div>
     </div>
 </template>
 
@@ -13,11 +16,6 @@ export default {
     components: {Header},
     data() {
         return {
-            links: [
-                {link: '/', label: 'Home'},
-                {link: '/forum', label: 'Forum'},
-                {link: '/login', label: 'Login'},
-            ],
             logoLink: './../assets/logo.png'
         }
     }

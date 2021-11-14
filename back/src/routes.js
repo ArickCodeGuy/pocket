@@ -1,13 +1,13 @@
 const express = require('express')
 const router = express.Router()
-const { getUserData, register, login, delUser, usersList, goToLocation, getStatus} = require('./users/index.js')
+const { getUserData, register, login, delUser, usersList, goToLocation, getStatus, setAttributes} = require('./users/index.js')
 const { getLocation, getNeighbours } = require('./locations/index.js')
 
 // 
 // USERS
 // 
 
-// get user's info by id or name in query
+// get user's info by id or name or session_id (if no arguments provided) in query
 // /users/?id=123
 // {
 //     login,
@@ -65,6 +65,16 @@ router.get('/users/go/', goToLocation)
 // 0 - no session_id, session_id is expired, not found, mysql error
 // 1 session_id is correct
 router.get('/users/get_status/', getStatus)
+
+// returns updated stats of user given session_id
+// query = {
+//     base_stamina: number,
+//     base_agility: number,
+//     base_stamina: number,
+//     base_wisdom: number,
+//     base_luck: number,
+// }
+router.post('/users/set_attributes/', setAttributes)
 
 // 
 // LOCATIONS

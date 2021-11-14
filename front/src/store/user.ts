@@ -8,11 +8,20 @@ type User = {
     base_strength: number,
     base_stamina: number,
     base_agility: number,
+    base_wisdom: number,
+    base_luck: number,
+    free_attributes: number,
     inventory_head: number,
     inventory_boots: number,
     inventory_left_hand: number,
     inventory_right_hand: number,
-    inventory_neck: number
+    inventory_neck: number,
+    calculated_health: number,
+    calculated_mana: number,
+    calculated_weight: number,
+    current_health: number,
+    current_mana: number,
+    current_weight: number,
 }
 
 const state: User = {
@@ -24,11 +33,20 @@ const state: User = {
     base_strength: 0,
     base_stamina: 0,
     base_agility: 0,
+    base_wisdom: 0,
+    base_luck: 0,
+    free_attributes: 0,
     inventory_head: 0,
     inventory_boots: 0,
     inventory_left_hand: 0,
     inventory_right_hand: 0,
-    inventory_neck: 0
+    inventory_neck: 0,
+    calculated_health: 0,
+    calculated_mana: 0,
+    calculated_weight: 0,
+    current_health: 0,
+    current_mana: 0,
+    current_weight: 0,
 }
 
 export default {
@@ -84,7 +102,35 @@ export default {
                     .then(json => {
                         resolve(json)
                     })
-                    .catch( async err => reject(await err))
+                    .catch(async err => reject(await err))
+            })
+        },
+        useRoute(store: any, data: number) {
+            return new Promise((resolve, reject) => {
+                fetch(`/api/users/go/?location_id=${data}`)
+                    .then(res => {
+                        if (!res.ok) {throw res.text()}
+                        return resolve(res)
+                    })
+                    .catch(async err => reject(await err))
+            })
+        },
+        requestAttributesChange(store: any, data: Partial<User>)  {
+            return new Promise((resolve, reject) => {
+                fetch(`/api/users/set_attributes/`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(data),
+                })
+                    .then(res => {
+                        if(!res.ok) {throw res.text()}
+                        return res.json()
+                    })
+                    .then((json: Partial<User>) => {
+                        store.commit('updateUserData', json)
+                        resolve(json)
+                    })
+                    .catch(async err => reject(await err))
             })
         }
     }

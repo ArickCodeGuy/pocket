@@ -23,7 +23,27 @@ const routes: Array<RouteRecordRaw> = [
   {
     path: '/game',
     name: 'Game',
-    component: () => import('../views/Game.vue')
+    component: () => import('../views/game/index.vue')
+  },
+  {
+    path: '/forum',
+    name: 'Forum',
+    component: () => import('../views/Forum.vue')
+  },
+  {
+    path: '/game/user/info',
+    name: 'User info',
+    component: () => import('../views/game/user/Info.vue')
+  },
+  {
+    path: '/game/user/skills',
+    name: 'User skills',
+    component: () => import('../views/game/user/Skills.vue')
+  },
+  {
+    path: '/game/user/backpack',
+    name: 'User backpack',
+    component: () => import('../views/game/user/Backpack.vue')
   },
 ]
 
