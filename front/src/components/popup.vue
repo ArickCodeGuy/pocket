@@ -1,8 +1,8 @@
 <template>
     <div class="popup" @mousedown="close">
-        <div class="popup-table">
-            <div class="popup-content-row">
-                <div class="popup-content-cell">
+        <div class="popup-table" @mousedown="close">
+            <div class="popup-content-row" @mousedown="close">
+                <div class="popup-content-cell" @mousedown="close">
                     <div class="popup-content">
                         <div class="popup-closer" v-if="showCloser" @mousedown="close"></div>
                         <slot></slot>
@@ -44,6 +44,8 @@ export default defineComponent({
     },
     methods: {
         close(event: MouseEvent) {
+            // no bubbling happens but just in case
+            event.stopPropagation()
             if (event.target === event.currentTarget) {
                 this.$emit('popupVisibilityChange', false)
             }
@@ -56,6 +58,7 @@ export default defineComponent({
 .popup {
     position: fixed;
     overflow-y: scroll;
+    cursor: pointer;
     padding: 12px;
     width: 100%;
     height: 100%;
@@ -65,6 +68,7 @@ export default defineComponent({
     z-index: 1000;
     .popup-closer {
         --size: 20px;
+        margin-bottom: 1rem;
         position: relative;
         width: var(--size);
         height: var(--size);
@@ -105,6 +109,7 @@ export default defineComponent({
         vertical-align: middle;
     }
     .popup-content {
+        cursor: auto;
         max-width: 740px;
         margin-left: auto;
         margin-right: auto;
