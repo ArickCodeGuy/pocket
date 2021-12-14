@@ -6,5 +6,13 @@ export const store = createStore({
     modules: {
         user,
         location
+    },
+    state: {
+        preloader: false
+    },
+    mutations: {
+        setPreloader(state, data: boolean) {
+            state.preloader = data
+        }
     }
 })

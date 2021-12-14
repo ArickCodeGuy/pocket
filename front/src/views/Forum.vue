@@ -2,10 +2,8 @@
     <div id="Forum">
         <Header/>
         <div class="container">
-            <div @click="togglePopup()">show popup</div>
-            <Popup v-if="popup" @popupVisibilityChange="togglePopup">
-                Lorem ipsum dolor sit amet consectetur adipisicing elit. Deleniti, est.
-            </Popup>
+            <div @click="togglePopup">show popup</div>
+            <Popup :visibility="popup" @popupVisibilityChange="togglePopup">\</Popup>
         </div>
     </div>
 </template>
@@ -22,12 +20,10 @@ export default defineComponent({
         }
     },
     methods: {
-        togglePopup(val: boolean) {
-            if (val !== undefined) {
-                this.popup = val
-            }else {
-                this.popup = !this.popup
-            }
+        togglePopup() {
+            this.popup = !this.popup
+
+            // const result = await this.$Popup('my text')
 
         }
     }

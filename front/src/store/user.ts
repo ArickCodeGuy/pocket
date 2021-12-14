@@ -1,5 +1,6 @@
 type User = {
-    [index: string]: number | string | undefined,
+    [index: string]: number | string | undefined | boolean,
+    loaded: boolean,
     name: string,
     profile_picture: string,
     lvl: number,
@@ -26,6 +27,7 @@ type User = {
 
 const state: User = {
     name: '',
+    loaded: false,
     profile_picture: '',
     lvl: 0,
     experience: 0,
@@ -56,6 +58,7 @@ export default {
             for (const key in data) {
                 state[key] = data[key]
             }
+            state.loaded = true
         },
     },
     actions: {
@@ -85,9 +88,9 @@ export default {
                         if (!res.ok) {throw res.text()}
                         return res.json()
                     })
-                    .then(json => {
-                        commit('updateUserData', json)
-                        resolve(json)
+                    .then(data => {
+                        commit('updateUserData', data)
+                        resolve(data)
                     })
                     .catch( async err => reject(await err))
             })
@@ -110,7 +113,7 @@ export default {
                 fetch(`/api/users/go/?location_id=${data}`)
                     .then(res => {
                         if (!res.ok) {throw res.text()}
-                        return resolve(res)
+                        return resolve(res.json())
                     })
                     .catch(async err => reject(await err))
             })

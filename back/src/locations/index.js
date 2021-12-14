@@ -1,38 +1,27 @@
 const queryDataBase = require('./../queryDatabase.js')
+const {queryUserInfo} = require('./../functions.js')
 
 module.exports = {
     async getLocation(req, res) {
-        if (!req.query.location_id && !req.cookies.session_id) {return res.status(400).send('specify location_id of location, or session_id')}
-
-        let location_id
-        if (req.query.location_id) {
-            location_id = req.query.location_id
-        }else {
-            try {
-                const session_query = await queryDataBase(`SELECT user_id, time_expires FROM pocket.sessions WHERE session_id = '${req.cookies.session_id}' LIMIT 1;`)
-                const user_id = session_query[0].user_id
-                const user_query = await queryDataBase(`SELECT location_id FROM pocket.users WHERE user_id = '${user_id}' LIMIT 1;`)
-                location_id = user_query[0].location_id
-            }
-            catch(err) {
-                res.status(err.status)
-                res.send(err.text)
-                return
-            }
-        }
-
+        console.log('REQUEST: getLocation')
         try {
-            const result = await queryDataBase(`SELECT id, name, description FROM pocket.locations WHERE id = ${location_id} LIMIT 1;`)
-            const location = result[0]
-            const neighbours_query = await queryDataBase(`SELECT id_to, route_name, route_time FROM pocket.location_routes WHERE id_from = ${location_id} LIMIT 10;`)
-            const neighbours = neighbours_query.map(item => {
-                return {
-                    id: item.id_to,
-                    name: item.route_name,
-                    time: item.route_time,
-                }
-            })
-            if (!result.length) {throw {status: 400, text: 'could not find row given query'}}
+            if (!req.cookies.session_id) {throw {status: 400, text: 'you have to be logged in to query locations'}}
+            const session_id = req.cookies.session_id
+
+            let {character_id, location_id, move_end, move_direction} = await queryUserInfo({session_id: session_id})
+            if (move_end !== 0 && new Date().getTime() >= parseInt(move_end)) {
+                location_id = move_direction
+                const result = await queryDataBase("UPDATE `pocket`.`users` SET `location_id` = '"+location_id+"', `move_end` = '0', `move_direction` = '0' WHERE (`character_id` = '"+character_id+"');")
+            }
+
+            const [location] = await queryDataBase(`SELECT id, name, description FROM pocket.locations WHERE id = ${location_id} LIMIT 1;`)
+            const neighbours_array = await queryDataBase(`SELECT id_to, route_name, route_time FROM pocket.location_routes WHERE id_from = ${location_id} LIMIT 10;`)
+            const neighbours = neighbours_array.map(item => ({
+                id: item.id_to,
+                name: item.route_name,
+                time: item.route_time,
+            }))
+            if (!location) {throw {status: 400, text: 'could not find row given query'}}
             res.send({
                 id: location.id,
                 name: location.name,
@@ -41,9 +30,8 @@ module.exports = {
             })
         }
         catch(err) {
-            // @@TODO доделать
-            res.status(err.status)
-            res.send(err.text)
+            console.log(err)
+            res.status(err.status).send(err.text)
         }
     },
 }
