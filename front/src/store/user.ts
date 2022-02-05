@@ -1,6 +1,5 @@
 type User = {
     [index: string]: number | string | undefined | boolean,
-    loaded: boolean,
     name: string,
     profile_picture: string,
     lvl: number,
@@ -27,7 +26,6 @@ type User = {
 
 const state: User = {
     name: '',
-    loaded: false,
     profile_picture: '',
     lvl: 0,
     experience: 0,
@@ -58,7 +56,6 @@ export default {
             for (const key in data) {
                 state[key] = data[key]
             }
-            state.loaded = true
         },
     },
     actions: {
@@ -95,28 +92,25 @@ export default {
                     .catch( async err => reject(await err))
             })
         },
-        checkStatus({commit}: any) {
-            return new Promise((resolve, reject) => {
-                fetch('/api/users/get_status/')
-                    .then(res => {
-                        if (!res.ok) {throw res.text()}
-                        return res.json()
-                    })
-                    .then(json => {
-                        resolve(json)
-                    })
-                    .catch(async err => reject(await err))
-            })
+        async useRoute(store: any, data: number) {
+            try {
+                const response = await fetch(`/api/users/go/?location_id=${data}`)
+                if (!response.ok) {throw response.text()}
+                return await response.json()
+            }
+            catch (err) {
+                console.log(err)
+            }
         },
-        useRoute(store: any, data: number) {
-            return new Promise((resolve, reject) => {
-                fetch(`/api/users/go/?location_id=${data}`)
-                    .then(res => {
-                        if (!res.ok) {throw res.text()}
-                        return resolve(res.json())
-                    })
-                    .catch(async err => reject(await err))
-            })
+        async cancelUseRoute(store: any) {
+            try {
+                const response = await fetch('/api/users/cancelGo/')
+                if (!response.ok) {throw response.text()}
+                return true
+            }
+            catch(err) {
+                console.log(err)
+            }
         },
         requestAttributesChange(store: any, data: Partial<User>)  {
             return new Promise((resolve, reject) => {

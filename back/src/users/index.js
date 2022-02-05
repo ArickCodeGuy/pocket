@@ -86,17 +86,15 @@ module.exports = {
         try {
             if (!req.query.location_id) {throw {status: 400, text: 'specify location_id to go to'}}
             const destination = req.query.location_id
-            const { id: user_id } = await queryUserStatus(req.cookies.session_id)
-            const { location_id: character_location, character_id } = await queryUserInfo({session_id: req.cookies.session_id})
+            const { user_id } = await queryUserStatus(req.cookies.session_id)
+            const { location_id: character_location, character_id } = await queryUserInfo({user_id: user_id})
             const { route_time } = await queryRoute(character_location, destination)
 
-            // @TODO delay implementation
-            // const { queryResult } = await queryDataBase("UPDATE `pocket`.`users` SET `location_id` = '"+destination+"' WHERE (`character_id` = '"+character_id+"');")
             const move_end = new Date().getTime() + route_time * 1000
             const { queryResult } = await queryDataBase("UPDATE `pocket`.`users` SET `move_end` = '"+move_end+"', `move_direction` = '"+destination+"' WHERE (`character_id` = '"+character_id+"');")
 
             res.send({
-                // location_id: req.query.location_id,
+                location_id: req.query.location_id,
                 time: route_time,
             })
         }
@@ -107,6 +105,16 @@ module.exports = {
     },
     async cancelGoToLocation(req, res) {
         console.log('REQUEST: cancelGoToLocation')
+        try {
+            const { user_id } = await queryUserStatus(req.cookies.session_id)
+            const { location_id: character_location, character_id } = await queryUserInfo({user_id: user_id})
+            const { queryResult } = await queryDataBase("UPDATE `pocket`.`users` SET `move_end` = '"+0+"', `move_direction` = '"+character_location+"' WHERE (`character_id` = '"+character_id+"');")
+            res.send()
+        }
+        catch(err) {
+            console.log(err)
+            res.status(err.status).send(err.text)
+        }
     },
     async setAttributes(req, res) {
         console.log('REQUEST: setAttributes')

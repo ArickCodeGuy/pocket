@@ -1,6 +1,6 @@
 <template>
     <div id="Forum">
-        <Header/>
+        <Header :showFake="true"/>
         <div class="container">
             <div @click="togglePopup">show popup</div>
             <Popup :visibility="popup" @popupVisibilityChange="togglePopup">\</Popup>

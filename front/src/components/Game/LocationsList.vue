@@ -44,9 +44,10 @@ export default defineComponent({
                 this.active_route = 0
             }, this.waitTime * 1000)
         },
-        cancelChangeLocation() {
+        async cancelChangeLocation() {
             // @@TODO cancel request
             clearTimeout(this.timeoutFunc)
+            await this.$store.dispatch('cancelUseRoute')
             this.active_route = 0
             this.waitTime = 0
         }

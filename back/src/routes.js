@@ -1,6 +1,6 @@
 const express = require('express')
 const router = express.Router()
-const { getUserData, register, login, delUser, usersList, goToLocation, getStatus, setAttributes} = require('./users/index.js')
+const { getUserData, register, login, delUser, usersList, goToLocation, cancelGoToLocation, getStatus, setAttributes} = require('./users/index.js')
 const { getLocation, getNeighbours } = require('./locations/index.js')
 
 // 
@@ -57,6 +57,10 @@ router.get('/users/list/', usersList)
 // sesion_id is stored in cookies and should be provided
 // /users/go/?location_id=1
 router.get('/users/go/', goToLocation)
+
+// returns nothing
+// /users/cancelGo/
+router.get('/users/cancelGo/', cancelGoToLocation)
 
 // returns given session_id
 // {

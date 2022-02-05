@@ -5,7 +5,6 @@ module.exports = {
     async getLocation(req, res) {
         console.log('REQUEST: getLocation')
         try {
-            if (!req.cookies.session_id) {throw {status: 400, text: 'you have to be logged in to query locations'}}
             const session_id = req.cookies.session_id
 
             let {character_id, location_id, move_end, move_direction} = await queryUserInfo({session_id: session_id})

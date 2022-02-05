@@ -6,34 +6,40 @@ function queryUserStatus(session_id) {
     return new Promise(async (resolve, reject) => {
         console.log('function: queryUserStatus')
         try {
-            if (!session_id) {throw {status: 400, text: 'No session_id provided'}}
+            if (!session_id) throw {status: 401, text: 'No session_id provided in cookies'}
 
             const result = await queryDataBase(`SELECT user_id, time_expires FROM pocket.sessions WHERE session_id = '${session_id}' LIMIT 1;`)
-            if (!result.length) {throw {status: 404, text: 'No user found given session_id'}}
-            if (Date.now() > result[0].time_expires) {throw {status: 401, text: 'session_id is exprired'}}
+            if (!result.length) throw {status: 404, text: 'No user found given session_id'}
+            if (Date.now() > result[0].time_expires) throw {status: 401, text: 'session_id is exprired'}
+
+            const user_data = await queryDataBase(`SELECT is_admin FROM pocket.users_essentials WHERE id = '${result[0].user_id}';`)
             resolve({
-                loged: true,
-                id: result[0].user_id
+                status: true,
+                user_id: result[0].user_id,
+                is_admin: user_data[0].is_admin ? true: false // 1 or 0
             })
         }
         catch(err) {reject(err)}
     })
 }
 
-// query character info by name, id or session_id
-function queryUserInfo({character_name, character_id, session_id}) {
+// query character info
+function queryUserInfo({character_name, character_id, session_id, user_id}) {
     return new Promise(async (resolve, reject) => {
         console.log('function: queryUserInfo')
         try {
-            if (!character_name && !character_id && !session_id) {throw {status: 400, text: 'specify name or id or your session_id to look for'}}
+            if (!character_name && !character_id && !session_id && !user_id) {throw {status: 400, text: 'specify one of those: character_name, character_id, session_id, user_id'}}
 
             let queryStr
             if (character_name) {
                 queryStr = `SELECT * FROM pocket.users WHERE name = '${character_name}';`
             }else if (character_id) {
                 queryStr = `SELECT * FROM pocket.users WHERE character_id = '${character_id}';`
+            }else if (user_id) {
+                const result = await queryDataBase("SELECT active_character_id FROM pocket.users_essentials WHERE id = "+user_id+";")
+                queryStr = `SELECT * FROM pocket.users WHERE character_id = '${result[0].active_character_id}';`
             }else if (session_id) {
-                const { id: user_id } = await queryUserStatus(session_id)
+                const { user_id } = await queryUserStatus(session_id)
                 const result = await queryDataBase("SELECT active_character_id FROM pocket.users_essentials WHERE id = "+user_id+";")
                 queryStr = `SELECT * FROM pocket.users WHERE character_id = '${result[0].active_character_id}';`
             }

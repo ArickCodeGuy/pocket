@@ -1,43 +1,51 @@
 <template>
     <div id="Login">
-        <Header/>
+        <Header :showFake="true"/>
         <div class="content">
             <div class="container">
-                <h1 class="header">{{ form.option.value }}</h1>
+                <h1 class="heading">{{ form.option.value }}</h1>
                 <form
                     class="form"
                     @submit.prevent="validate"
                 >
                     <div class="options">
-                        <label :class="{'active': form.option.value === 'Login'}">Login<input type="radio" value="Login" v-model="form.option.value" /></label>
-                        <label :class="{'active': form.option.value === 'Register'}">Register<input type="radio" value="Register" v-model="form.option.value" /></label>
+                        <div @click="changeOption('Login')" :class="{'active': form.option.value === 'Login'}">Login</div>
+                        <div @click="changeOption('Register')" :class="{'active': form.option.value === 'Register'}">Register</div>
                     </div>
                     <input
-                        type="text"
+                        :type="form.inputs.login.type"
                         class="input"
-                        :class="{ 'invalid': !form.login.status }"
-                        v-model="form.login.value"
-                        placeholder="Login"
-                        autofocus
-                        @input="changeStatus(form.login)"
-                    >
+                        :class="{ 'invalid': !form.inputs.login.status }"
+                        v-model="form.inputs.login.value"
+                        :placeholder="form.inputs.login.placeholder"
+                        :title="form.inputs.login.title"
+                        :pattern="form.inputs.login.pattern"
+                        :autofocus="form.inputs.login.autofocus"
+                        @input="changeStatus(form.inputs.login)"
+                    />
                     <input
-                        type="password"
+                        :type="form.inputs.password.type"
                         class="input"
-                        :class="{ 'invalid': !form.password.status }"
-                        v-model="form.password.value"
-                        placeholder="password"
-                        @input="changeStatus(form.password)"
-                    >
+                        :class="{ 'invalid': !form.inputs.password.status }"
+                        v-model="form.inputs.password.value"
+                        :placeholder="form.inputs.password.placeholder"
+                        :title="form.inputs.password.title"
+                        :pattern="form.inputs.password.pattern"
+                        :autofocus="form.inputs.password.autofocus"
+                        @input="changeStatus(form.inputs.password)"
+                    />
                     <input
-                        type="email"
+                        :type="form.inputs.email.type"
+                        class="input"
+                        :class="{ 'invalid': !form.inputs.email.status }"
+                        v-model="form.inputs.email.value"
+                        :placeholder="form.inputs.email.placeholder"
+                        :title="form.inputs.email.title"
+                        :pattern="form.inputs.email.pattern"
+                        :autofocus="form.inputs.email.autofocus"
+                        @input="changeStatus(form.inputs.email)"
                         v-if="form.option.value === 'Register'"
-                        class="input"
-                        :class="{ 'invalid': !form.email.status }"
-                        v-model="form.email.value"
-                        placeholder="Email"
-                        @input="changeStatus(form.email)"
-                    >
+                    />
                     <input
                         class="submit"
                         type="submit"
@@ -51,6 +59,15 @@
 </template>
 
 <script lang="ts">
+type formInput = {
+    key: string;
+    type: string;
+    value: string;
+    pattern: string;
+    title: string;
+    status: boolean;
+    autofocus: boolean;
+}
 import { defineComponent } from 'vue';
 import Header from './../components/Header/index.vue'
 export default defineComponent({
@@ -61,46 +78,81 @@ export default defineComponent({
                 option: {
                     value: 'Login',
                 },
-                login: {
-                    value: '',
-                    status: true,
-                },
-                password: {
-                    value: '',
-                    status: true,
-                },
-                email: {
-                    value: '',
-                    status: true,
+                inputs: {
+                    login: {
+                        placeholder: 'Login',
+                        type: 'text',
+                        value: '',
+                        pattern: '^[a-z][a-z\\d]{3,}',
+                        title: 'Should start with a letter, at least 4 characters long',
+                        status: true,
+                        autofocus: true,
+                    },
+                    password: {
+                        placeholder: 'Password',
+                        type: 'password',
+                        value: '',
+                        pattern: '.{4,}',
+                        title: 'Should be at least 6 characters',
+                        status: true,
+                    },
+                    email: {
+                        placeholder: 'Email',
+                        key: 'email',
+                        type: 'email',
+                        value: '',
+                        pattern: '[a-zA-Z\\d]{3,}@[a-z]{3,}\\.[a-z]{2,}',
+                        title: 'Input your email',
+                        status: true,
+                    },
                 },
                 error: {
                     value: ''
                 }
-            }
+            },
         }
     },
-    beforeMount() {
-        this.$store.dispatch('checkStatus')
-            .then((res: any) => {
-                res.loged ? this.$router.push('/game/'): false
-            })
-            .catch((err: string) => console.log(err))
+    async beforeMount() {
+        if (this.$store.state.status === null) {
+            await this.$store.dispatch('checkStatus')
+            this.$store.state.status === true ? this.$router.push('/game/'): false
+        }
     },
     methods: {
-        changeStatus(ref: any) {
+        changeStatus(ref: formInput) {
             ref.status = true
         },
         validate() {
-            if (!this.form.login.value) {this.form.login.status = false}
-            if (!this.form.password.value) {this.form.password.status = false}
-            if (this.form.option.value === 'Register' && !this.form.email.value) {this.form.email.status = false}
+            let status = true
 
-            if (!this.form.login.status || !this.form.password.status || !this.form.email.status) {return}
-
-            if (this.form.option.value === 'Login') {
-                this.doLogin()
-            }else if (this.form.option.value === 'Register') {
-                this.doRegister()
+            // login
+            let loginMatch = this.form.inputs.login.value.match(new RegExp(this.form.inputs.login.pattern))
+            if (loginMatch === null || (Array.isArray(loginMatch) && !(loginMatch[0] === this.form.inputs.login.value))) {
+                status = false
+                this.form.inputs.login.status = false
+            }
+            // password
+            let passwordMatch = this.form.inputs.password.value.match(new RegExp(this.form.inputs.password.pattern))
+            if (passwordMatch === null || (Array.isArray(passwordMatch) && !(passwordMatch[0] === this.form.inputs.password.value))) {
+                status = false
+                this.form.inputs.password.status = false
+                console.log(passwordMatch)
+            }
+            // email
+            if (this.form.option.value === 'Register') {
+                let emailMatch = this.form.inputs.email.value.match(new RegExp(this.form.inputs.email.pattern))
+                if (emailMatch === null || (Array.isArray(emailMatch) && !(emailMatch[0] === this.form.inputs.email.value))) {
+                    status = false
+                    this.form.inputs.email.status = false
+                }
+            }
+            
+            if (status) {
+                if (this.form.option.value === 'Login') {
+                    this.doLogin()
+                }else {
+                    this.doRegister()
+                }
             }
         },
         hashPas(string: string) {
@@ -108,8 +160,8 @@ export default defineComponent({
         },
         doLogin() {
             this.$store.dispatch('doLogin', {
-                login: this.form.login.value,
-                password: this.form.password.value
+                login: this.form.inputs.login.value,
+                password: this.form.inputs.password.value
             })
                 .then(() => {
                     this.$router.push('/game/')
@@ -119,8 +171,13 @@ export default defineComponent({
                 })
         },
         doRegister() {
-            fetch(`/api/users/?login=${this.form.login.value}&password=${this.form.password.value}`, {
-                method: 'POST'
+            let data = new FormData()
+            data.append('login', this.form.inputs.login.value)
+            data.append('login', this.form.inputs.password.value)
+            data.append('login', this.form.inputs.email.value)
+            fetch(`/api/users/`, {
+                method: 'POST',
+                body: data
             })
                 .then(res => {
                     if (!res.ok) {throw res.text()}
@@ -129,6 +186,9 @@ export default defineComponent({
                 .catch(async (err: string) => {
                     this.form.error.value = await err
                 })
+        },
+        changeOption(str: string) {
+            this.form.option.value = str
         }
     }
 })
@@ -164,6 +224,7 @@ export default defineComponent({
             }
         }
         .input {
+            width: 100%;
             padding: 15px 10px;
             border: 1px solid transparent;
             border-radius: 5px;
@@ -172,8 +233,9 @@ export default defineComponent({
                 outline: none;
                 box-shadow: 0 0 5px 1px var(--block-color);
             }
-            &.invalid {
+            &.invalid, &:invalid {
                 border: 1px solid red;
+                color: red;
             }
         }
         .submit {

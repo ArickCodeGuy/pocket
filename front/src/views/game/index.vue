@@ -1,6 +1,6 @@
 <template>
     <div id="game">
-        <Header />
+        <Header :showFake="true"/>
         <div class="content">
             <div class="container">
                 <LocationInfo />
