@@ -1,5 +1,10 @@
-type User = {
-    [index: string]: number | string | undefined | boolean,
+interface Item {
+    type: string,
+    proto_id: number,
+    id: number
+}
+interface User {
+    [index: string]: any,
     name: string,
     profile_picture: string,
     lvl: number,
@@ -22,6 +27,7 @@ type User = {
     current_health: number,
     current_mana: number,
     current_weight: number,
+    backpack: Array<Item> | null
 }
 
 const state: User = {
@@ -47,6 +53,7 @@ const state: User = {
     current_health: 0,
     current_mana: 0,
     current_weight: 0,
+    backpack: null
 }
 
 export default {

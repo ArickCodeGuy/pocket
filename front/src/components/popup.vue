@@ -3,7 +3,7 @@
         class="popup"
         @mousedown="close"
         :style="{
-            'transition': `${animationDuration}ms`
+            'animation-duration': `${animationDuration}ms`
         }"
         :class="{
             'animate-in': isAnimating === true,
@@ -11,6 +11,7 @@
             'animation-in-end': (isAnimating === null && visibility === true),
             'animation-out-end': (isAnimating === null && visibility === false)
         }"
+        v-show="visibility"
     >
         <div class="popup-table" @mousedown="close">
             <div class="popup-content-row" @mousedown="close">
@@ -46,8 +47,8 @@ export default defineComponent({
     },
     data() {
         return {
-            isAnimating: null as any,
-            timeoutFunc: null as any,
+            isAnimating: null as null | boolean,
+            timeoutFunc: null as null | number,
         }
     },
     methods: {
@@ -90,10 +91,19 @@ export default defineComponent({
     top: 0;
     background-color: var(--block-shadow);
     z-index: 1000;
-    &.animate-in {opacity: 1;}
-    &.animate-out {opacity: 0;}
-    &.animation-in-end {opacity: 1;}
-    &.animation-out-end {opacity: 0; pointer-events: none;}
+    animation-iteration-count: 1;
+    @keyframes animatein {
+        from {opacity: 0;}
+        to {opacity: 1;}
+    }
+    @keyframes animateout {
+        from {opacity: 1;}
+        to {opacity: 0;}
+    }
+    &.animate-in {animation: animatein; display: block !important;}
+    &.animate-out {animation: animateout; display: block !important;}
+    // &.animation-in-end {opacity: 1;}
+    // &.animation-out-end {opacity: 0;}
     .popup-closer {
         --size: 20px;
         margin-bottom: 1rem;

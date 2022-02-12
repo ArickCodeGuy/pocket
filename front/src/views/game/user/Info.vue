@@ -41,6 +41,10 @@
                 </div>
             </div>
         </div>
+        <Popup :visibility="popupVisibility" @popupVisibilityChange="togglePopup">
+            content
+            {{popupItems}}
+        </Popup>
     </div>
 </template>
 
@@ -53,6 +57,8 @@ export default {
             points: 0,
             points_wasted: 0,
             attributes: [],
+            popupItems: [],
+            popupVisibility: false,
         }
     },
     watch: {
@@ -67,14 +73,13 @@ export default {
                     {key: 'base_luck', title: 'Luck', plus: 0, value: val.base_luck},
                 ];
             },
-            immediate: true,
             deep: true,
-            flush: 'post',
         }
     },
     methods: {
-        characterGridClick(item) {
-            this.$store.dispatch('getItemsByType')
+        characterGridClick(itemType) {
+            let backpack = this.$store.state.user.backpack
+            this.togglePopup()
         },
         addPoint(i) {
             if (this.points) {
@@ -98,7 +103,8 @@ export default {
                 return obj
             }, {})
             this.$store.dispatch('requestAttributesChange', data)
-        }
+        },
+        togglePopup() {this.popupVisibility = !this.popupVisibility}
     }
 }
 </script>
