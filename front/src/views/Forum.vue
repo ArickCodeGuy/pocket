@@ -2,8 +2,9 @@
     <div id="Forum">
         <Header :showFake="true"/>
         <div class="container">
-            <div @click="togglePopup">show popup</div>
-            <Popup :visibility="popup" @popupVisibilityChange="togglePopup">\</Popup>
+            <div @click="changePopupVisibility()">show popup</div>
+            <Popup :visibility="popupVisibility" @popupVisibilityChange="changePopupVisibility">\</Popup>
+            <Spacer class="spacer-10-lg"/>
         </div>
     </div>
 </template>
@@ -15,16 +16,12 @@ export default defineComponent({
     components: {Header},
     data() {
         return {
-            a: '',
-            popup: false,
+            popupVisibility: false,
         }
     },
     methods: {
-        togglePopup() {
-            this.popup = !this.popup
-
-            // const result = await this.$Popup('my text')
-
+        changePopupVisibility(bool: boolean | undefined) {
+            bool !== undefined ? this.popupVisibility = bool: this.popupVisibility = !this.popupVisibility
         }
     }
 })

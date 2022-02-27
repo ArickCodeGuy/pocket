@@ -1,31 +1,31 @@
 <template>
-    <div
-        class="popup"
-        @mousedown="close"
-        :style="{
-            'animation-duration': `${animationDuration}ms`
-        }"
-        :class="{
-            'animate-in': isAnimating === true,
-            'animate-out': isAnimating === false,
-            'animation-in-end': (isAnimating === null && visibility === true),
-            'animation-out-end': (isAnimating === null && visibility === false)
-        }"
-        v-show="visibility"
-    >
-        <div class="popup-table" @mousedown="close">
-            <div class="popup-content-row" @mousedown="close">
-                <div class="popup-content-cell" @mousedown="close">
-                    <div
-                        class="popup-content"
-                    >
-                        <div class="popup-closer" v-if="closerVisibility" @mousedown="close"></div>
-                        <slot></slot>
+    <teleport to="body">
+        <div
+            class="popup"
+            @mousedown="close"
+            :style="{
+                'animation-duration': `${animationDuration}ms`
+            }"
+            :class="{
+                'animate-in': isAnimating === true,
+                'animate-out': isAnimating === false,
+            }"
+            v-show="visibility"
+        >
+            <div class="popup-table" @mousedown="close">
+                <div class="popup-content-row" @mousedown="close">
+                    <div class="popup-content-cell" @mousedown="close">
+                        <div
+                            class="popup-content"
+                        >
+                            <div class="popup-closer" v-if="closerVisibility" @mousedown="close"></div>
+                            <slot></slot>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+    </teleport>
 </template>
 
 <script lang="ts">
@@ -53,26 +53,21 @@ export default defineComponent({
     },
     methods: {
         close(event: MouseEvent) {
-            // no bubbling happens but just in case
-            event.stopPropagation()
             if (event.target === event.currentTarget) {
                 this.$emit('popupVisibilityChange', false)
             }
-        },
-        changeVisibility(val: boolean) {
-            this.isAnimating = val
-            if (typeof this.timeoutFunc === 'function') {
-                clearTimeout(this.timeoutFunc)
-            }
-            this.timeoutFunc = setTimeout(() => {
-                this.isAnimating = null
-            }, this.animationDuration)
         },
     },
     watch: {
         visibility: {
             handler(val) {
-                this.changeVisibility(val)
+                this.isAnimating = val
+                if (typeof this.timeoutFunc === 'function') {
+                    clearTimeout(this.timeoutFunc)
+                }
+                this.timeoutFunc = setTimeout(() => {
+                    this.isAnimating = null
+                }, this.animationDuration)
             }
         }
     }
@@ -102,14 +97,11 @@ export default defineComponent({
     }
     &.animate-in {animation: animatein; display: block !important;}
     &.animate-out {animation: animateout; display: block !important;}
-    // &.animation-in-end {opacity: 1;}
-    // &.animation-out-end {opacity: 0;}
     .popup-closer {
-        --size: 20px;
         margin-bottom: 1rem;
         position: relative;
-        width: var(--size);
-        height: var(--size);
+        width: 20px;
+        height: 20px;
         cursor: pointer;
         transition: .3s;
         &::before, &::after {

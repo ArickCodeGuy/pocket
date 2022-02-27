@@ -1,7 +1,3 @@
-* {
-    transition: .3s background-color;
-}
-
 :root {
     // breakpoints
     --breakpoint-xs: 0px;
@@ -37,26 +33,47 @@
     --btn-color-dark: #91a3fb;
 
     // margins, paddings
-    --section-margin: 30px;
-    --section-padding: 30px;
-    --spacer-margin-sm: 10px;
-    --spacer-margin-lg: 30px;
-    --spacer-margin: var(--spacer-margin-sm);
+    --section-margin-xs: 30px;
+    --section-padding-xs: 30px;
 
-    @media (min-width: 768px) {
-        --section-margin: 100px;
-        --section-padding: 100px;
-        --spacer-margin: var(--spacer-margin-lg);
-    }
+    --section-margin-md: 100px;
+    --section-padding-md: 100px;
+
+    --font-size-xs: 12px;
+    --font-size-sm: 15px;
+    --font-size-md: 18px;
+    --font-size-lg: 20px;
+
+    --column-gap-xs: 15px;
+    --column-gap-lg: 30px;
+}
+
+*, *::before, *::after {
+    box-sizing: border-box;
+}
+
+* {
+    transition: .3s background-color;
+}
+
+html {
+    scroll-behavior: smooth;
 }
 
 body {
+    --font-size: var(--font-size-xs);
     margin: 0;
     color:  var(--color-secondary);
-    font-size: 12px;
+    font-size: var(--font-size);
     line-height: 1.2em;
     background-color: var(--bgc);
     font-family: 'Montserrat';
+
+    --section-margin: var(--section-margin-xs);
+    --section-padding: var(--section-padding-xs);
+    --column-gap: var(--column-gap-xs);
+    --column-gutter: calc(var(--column-gap) / 2);
+    --negative-column-gutter: calc(var(--column-gutter) * -1);
 
     // set default as light theme
     --color-primary: var(--color-primary-light);
@@ -83,13 +100,16 @@ body {
         --btn-color: var(--btn-color-dark);
     }
     @media (min-width: 576px) {
-        font-size: 15px;
+        --font-size: var(--font-size-sm);
     }
-    @media (min-width: 992px) {
-        font-size: 18px;
+    @media (min-width: 768px) {
+        --section-margin: var(--section-margin-md);
+        --section-padding: var(--section-padding-md);
+        --font-size: var(--font-size-md);
     }
     @media (min-width: 1200px) {
-        font-size: 20px;
+        --font-size: var(--font-size-lg);
+        --column-gap: var(--column-gap-lg);
     }
 }
 
@@ -103,47 +123,40 @@ body {
     background-repeat: no-repeat;
 }
 
-*, *::before, *::after {
-    box-sizing: border-box;
-}
-
 .container {
     // referes to column gap within container
-    --gap: 8px;
-    --ngap: calc(var(--gap) * -1);
-    --hgap: calc(var(--gap) / 2);
-    --hngap: calc(var(--ngap) / 2);
-    padding-left: var(--hgap);
-    padding-right: var(--hgap);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 15px;
+    padding-right: 15px;
     @media (min-width: 768px) {
-        --gap: 30px;
         width: 740px;
     }
     @media (min-width: 1921px) { width: 1340px; }
 }
-
-[class^="heading"] {
-    margin: 0;
-    margin-top: 1em;
-    margin-bottom: .5em;
-    text-transform: uppercase;
-    font-weight: normal;
-    color: var(--color-primary);
-    &:first-child {
-        margin-top: 0;
-    }
-}
-.heading, h1 {
+.h1, h1 {
     font-size: 3em;
     line-height: 1em;
+    margin-bottom: 1em;
+    margin-top: 1.5em;
+    &:first-child {margin-top: 0;}
+    &:last-child {margin-bottom: 0;}
 }
-.heading2, h2 {
+.h2, h2 {
     font-size: 2.4em;
     line-height: 1em;
+    margin-bottom: 1em;
+    margin-top: 1.5em;
+    &:first-child {margin-top: 0;}
+    &:last-child {margin-bottom: 0;}
 }
-.heading3, h3 {
+.h3, h3 {
     font-size: 1.5em;
     line-height: 1em;
+    margin-bottom: 1em;
+    margin-top: 1.5em;
+    &:first-child {margin-top: 0;}
+    &:last-child {margin-bottom: 0;}
 }
 p {
     margin: 1em 0;
@@ -154,11 +167,6 @@ ul {
     margin: 1em 0;
     &:first-child { margin-top: 0; }
     &:last-child { margin-bottom: 0; }
-}
-.spacer {
-    border: none;
-    margin: 0;
-    height: var(--spacer-margin);
 }
 
 .btn {
@@ -193,4 +201,20 @@ ul {
         border-radius: 5px;
         background-color: #3863d9;
     }
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin-left: var(--negative-column-gutter);
+    margin-right: var(--negative-column-gutter);
+}
+[class^="col-"] {
+    padding-left: var(--column-gutter);
+    padding-right: var(--column-gutter);
+}
+@for $i from 1 through 12 {
+    .col-#{$i} {width: calc($i * 100% / 12);}
+    @media (min-width: 768px) {.col-md-#{$i} {width: calc($i * 100% / 12);}}
+    @media (min-width: 1200px) {.col-lg-#{$i} {width: calc($i * 100% / 12);}}
 }

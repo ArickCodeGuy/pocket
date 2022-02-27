@@ -62,7 +62,7 @@ export default {
         }
     },
     watch: {
-        '$store.state.user': {
+        user: {
             handler(val) {
                 this.points = val.free_attributes;
                 this.attributes = [
@@ -73,12 +73,14 @@ export default {
                     {key: 'base_luck', title: 'Luck', plus: 0, value: val.base_luck},
                 ];
             },
-            deep: true,
         }
+    },
+    computed: {
+        user() {return this.$store.state.user}
     },
     methods: {
         characterGridClick(itemType) {
-            let backpack = this.$store.state.user.backpack
+            let backpack = this.user.backpack.filter(i => i.type === itemType)
             this.togglePopup()
         },
         addPoint(i) {

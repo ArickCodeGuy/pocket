@@ -1,16 +1,29 @@
 <template>
     <div
         class="spacer"
-        :style="{height: spacer_height}"
     />
 </template>
 
 <script>
 export default {
-    props: ['h', 'lg_h', 'md_h', 'sm_h']
+    
 }
 </script>
 
-<style>
-    
+<style lang="scss" scoped>
+@for $i from 1 through 10 {
+    .spacer-#{$i} {
+        height: 4px * $i;
+        @media (min-width: 768px) {
+            &-md {
+                height: 4px * $i;
+            }
+        }
+        @media (min-width: 1200px) {
+            &-lg {
+                height: 4px * $i;
+            }
+        }
+    }
+}
 </style>
